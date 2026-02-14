@@ -1,0 +1,4 @@
+D:/DevProject/cpp/mini-spdlog/build/CMakeFiles/mini_spdlog.dir
+D:/DevProject/cpp/mini-spdlog/build/CMakeFiles/example.dir
+D:/DevProject/cpp/mini-spdlog/build/CMakeFiles/ALL_BUILD.dir
+D:/DevProject/cpp/mini-spdlog/build/CMakeFiles/ZERO_CHECK.dir

@@ -1,0 +1,3 @@
+[2026-02-14 18:39:19.0715449] [INFO]      Hello sink world!
+[2026-02-14 18:39:19.0720827] [ERROR]     Something went wrong.
+[18:39:19.0723266] [[WARN]] Hello 42!

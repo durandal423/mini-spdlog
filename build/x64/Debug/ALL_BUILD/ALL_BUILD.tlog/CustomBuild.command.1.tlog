@@ -1,0 +1,10 @@
+^D:\DEVPROJECT\CPP\MINI-SPDLOG\CMAKELISTS.TXT
+setlocal
+D:\Scoop\apps\cmake\current\bin\cmake.exe -SD:/DevProject/cpp/mini-spdlog -BD:/DevProject/cpp/mini-spdlog/build --check-stamp-file D:/DevProject/cpp/mini-spdlog/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

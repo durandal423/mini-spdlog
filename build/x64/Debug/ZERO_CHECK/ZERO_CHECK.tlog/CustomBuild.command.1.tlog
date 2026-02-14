@@ -1,0 +1,10 @@
+^D:\DEVPROJECT\CPP\MINI-SPDLOG\BUILD\CMAKEFILES\D21791E00C99AE8CB58C0CEA27AA678D\GENERATE.STAMP.RULE
+setlocal
+D:\Scoop\apps\cmake\current\bin\cmake.exe -SD:/DevProject/cpp/mini-spdlog -BD:/DevProject/cpp/mini-spdlog/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/DevProject/cpp/mini-spdlog/build/mini_spdlog.slnx
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

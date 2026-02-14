@@ -1,6 +1,0 @@
-D:\DevProject\cpp\mini-spdlog\src\level.cpp;D:\DevProject\cpp\mini-spdlog\build\mini_spdlog.dir\Debug\level.obj
-D:\DevProject\cpp\mini-spdlog\src\logger.cpp;D:\DevProject\cpp\mini-spdlog\build\mini_spdlog.dir\Debug\logger.obj
-D:\DevProject\cpp\mini-spdlog\src\sink\file_sink.cpp;D:\DevProject\cpp\mini-spdlog\build\mini_spdlog.dir\Debug\file_sink.obj
-D:\DevProject\cpp\mini-spdlog\src\sink\stdout_sink.cpp;D:\DevProject\cpp\mini-spdlog\build\mini_spdlog.dir\Debug\stdout_sink.obj
-D:\DevProject\cpp\mini-spdlog\src\formatter\pattern_formatter.cpp;D:\DevProject\cpp\mini-spdlog\build\mini_spdlog.dir\Debug\pattern_formatter.obj
-D:\DevProject\cpp\mini-spdlog\src\formatter\simple_formatter.cpp;D:\DevProject\cpp\mini-spdlog\build\mini_spdlog.dir\Debug\simple_formatter.obj

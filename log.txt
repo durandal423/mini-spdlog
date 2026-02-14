@@ -1,3 +1,10 @@
-[2026-02-14 18:39:19.0715449] [INFO]      Hello sink world!
-[2026-02-14 18:39:19.0720827] [ERROR]     Something went wrong.
-[18:39:19.0723266] [[WARN]] Hello 42!
+[2026-02-14 19:09:28.3037481] [INFO]      Logger initialized.
+[2026-02-14 19:09:28.3043627] [WARN]      Warning number: 1
+[2026-02-14 19:09:28.3046690] [ERROR]     Error message: file not found
+[2026-02-14 19:09:28.3049139] [WARN]      This should appear.
+[2026-02-14 19:09:28.3051594] [ERROR]     This should also appear.
+[19:09:28.3054929] [INFO] Pattern formatting test 123
+[19:09:28.3057228] [ERROR] Another error occurred: 3.14
+[2026-02-14 19:09:28.3058783] [INFO]      Back to simple formatter.
+[SECOND LOGGER] [WARN] This should go to same file.
+[SECOND LOGGER] [ERROR] Multiple params: 1 2.5 test

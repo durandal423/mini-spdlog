@@ -13,7 +13,7 @@ public:
     void log(const std::string& formatted_msg) override;
     
 private:
-    std::mutex mutex_;
+    static std::mutex mutex_;
 };
 
 }  // namespace mini_spdlog

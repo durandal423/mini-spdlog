@@ -48,5 +48,14 @@ int main() {
     // ===== 8️⃣ 多参数格式测试 =====
     log2.error("Multiple params: {} {} {}", 1, 2.5, "test");
 
+    auto fmt_ptr = std::make_unique<mini_spdlog::pattern_formatter>("%l [%H:%M:%S] %v");
+    log.set_formatter(*fmt_ptr);
+    log.info("Hello, {}", 42);
+
+    log2.set_formatter(std::move(fmt_ptr));
+    log2.info("World, {}", 37);
+    log2.info("World, {}", 37);
+    log2.info("World, {}", 37);
+
     return 0;
 }

@@ -18,11 +18,7 @@ namespace mini_spdlog {
 
 class logger {
 public:
-    logger(std::string name, level min_level = level::info)
-        : name_(std::move(name))
-        , min_level_(min_level)
-        , formatter_(std::make_shared<simple_formatter>())
-        , sinks_(std::make_shared<std::vector<std::shared_ptr<sink>>>()) {}
+    logger(std::string name, level min_level = level::info);
 
     const std::string& get_name() const;
 

@@ -10,8 +10,7 @@ namespace mini_spdlog {
 
 class file_sink : public sink {
 public:
-    explicit file_sink(const std::string& filename)
-        : file_(filename, std::ios::app) {}
+    explicit file_sink(const std::string& filename);
 
     void log(const std::string& formatted_msg) override;
 

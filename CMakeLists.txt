@@ -9,6 +9,7 @@ add_library(mini_spdlog
     src/registry.cpp
     src/sink/file_sink.cpp
     src/sink/stdout_sink.cpp
+    src/sink/async_sink.cpp
     src/formatter/pattern_formatter.cpp
     src/formatter/simple_formatter.cpp
 )

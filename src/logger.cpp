@@ -1,16 +1,22 @@
 #include "mini_spdlog/logger.h"
 
+#include <atomic>
 #include <chrono>
 #include <ctime>
 #include <iomanip>
 #include <sstream>
-#include <atomic>
 
 namespace mini_spdlog {
 
 static bool is_level_enabled(level lvl, level min_lvl) {
     return static_cast<int>(lvl) >= static_cast<int>(min_lvl);
 }
+
+logger::logger(std::string name, level min_level)
+    : name_(std::move(name))
+    , min_level_(min_level)
+    , formatter_(std::make_shared<simple_formatter>())
+    , sinks_(std::make_shared<std::vector<std::shared_ptr<sink>>>()) {}
 
 const std::string& logger::get_name() const {
     return name_;
@@ -38,13 +44,12 @@ void logger::log(level lvl, const std::string& msg) {
         return;
     }
 
-    log_msg log{
+    log_msg log {
         lvl,
         msg,
-        std::chrono::system_clock::now()
-    };
+        std::chrono::system_clock::now()};
 
-    auto fmt = formatter_.load(std::memory_order_acquire);
+    auto fmt   = formatter_.load(std::memory_order_acquire);
     auto sinks = sinks_.load(std::memory_order_acquire);
 
     std::string formatted = fmt->format(log);

@@ -12,11 +12,7 @@ namespace mini_spdlog {
 
 class registry {
 public:
-    registry() {
-        default_logger_ = std::make_shared<logger>("default");
-        default_logger_->add_sink(std::make_shared<stdout_sink>());
-        loggers_["default"] = default_logger_;
-    }
+    registry();
     static registry& instance();
 
     void register_logger(std::shared_ptr<logger> logger);

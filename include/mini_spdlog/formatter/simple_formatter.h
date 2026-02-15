@@ -12,7 +12,7 @@ class simple_formatter : public formatter {
 public:
     std::string format(const log_msg& msg) override {
         return std::format(
-            "[{:%Y-%m-%d %H:%M:%S}] {:<11} {}",
+            "[{:%Y-%m-%d %H:%M:%S}] {} {}",
             msg.time,
             level_to_string(msg.lvl),
             msg.payload);

@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 23)
 add_library(mini_spdlog
     src/level.cpp
     src/logger.cpp
+    src/registry.cpp
     src/sink/file_sink.cpp
     src/sink/stdout_sink.cpp
     src/formatter/pattern_formatter.cpp

@@ -17,9 +17,12 @@ namespace mini_spdlog {
 
 class logger {
 public:
-    logger(level min_level = level::info)
-        : min_level_(min_level)
+    logger(std::string name, level min_level = level::info)
+        : name_(name)
+        , min_level_(min_level)
         , formatter_(std::make_unique<simple_formatter>()) {}
+
+    std::string& get_name();
 
     template <typename Sink, typename... Args>
     void add_sink(Args&&... args) {
@@ -85,6 +88,7 @@ public:
     }
 
 private:
+    std::string name_;
     level min_level_;
     std::vector<std::shared_ptr<sink>> sinks_;
     std::unique_ptr<formatter> formatter_;

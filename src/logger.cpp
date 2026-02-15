@@ -11,6 +11,10 @@ static bool is_level_enabled(level lvl, level min_lvl) {
     return static_cast<int>(lvl) >= static_cast<int>(min_lvl);
 }
 
+std::string& logger::get_name() {
+    return name_;
+}
+
 void logger::add_sink(std::shared_ptr<sink> sink) {
     sinks_.push_back(sink);
 }
@@ -20,7 +24,6 @@ void logger::clear_sinks() {
 }
 
 void logger::log(level lvl, const std::string& msg) {
-
     if (!is_level_enabled(lvl, min_level_)) {
         return;
     }

@@ -6,6 +6,7 @@
 #include "mini_spdlog/sink/file_sink.h"
 #include "mini_spdlog/sink/sink.h"
 #include "mini_spdlog/sink/stdout_sink.h"
+#include "mini_spdlog/sink/async_sink.h"
 
 namespace mini_spdlog {
 
@@ -15,6 +16,14 @@ inline std::shared_ptr<logger> get(const std::string& name) {
 
 inline std::shared_ptr<logger> default_logger() {
     return registry::instance().get_default_logger();
+}
+
+inline void register_logger(std::shared_ptr<logger> log) {
+    registry::instance().register_logger(std::move(log));
+}
+
+inline void set_pattern(std::string pattern) {
+    default_logger()->set_pattern(std::move(pattern));
 }
 
 inline void trace(const std::string& msg) {

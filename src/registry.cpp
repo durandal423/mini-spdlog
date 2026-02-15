@@ -1,7 +1,7 @@
 #include "mini_spdlog/registry.h"
 
 namespace mini_spdlog {
-    
+
 registry& registry::instance() {
     static registry inst;
     return inst;
@@ -14,6 +14,7 @@ std::shared_ptr<logger> registry::get(const std::string& name) {
 }
 
 std::shared_ptr<logger> registry::get_default_logger() {
+    std::lock_guard lock(mutex_);
     return default_logger_;
 }
 
@@ -33,7 +34,7 @@ void registry::drop_all() {
 }
 
 void registry::register_logger(std::shared_ptr<logger> logger) {
-     std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> lock(mutex_);
     const auto& name = logger->get_name();
 
     if (auto it = loggers_.find(name); it != loggers_.end()) {
@@ -43,4 +44,4 @@ void registry::register_logger(std::shared_ptr<logger> logger) {
     loggers_[name] = logger;
 }
 
-} // namespace mini_spdlog
+}  // namespace mini_spdlog

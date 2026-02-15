@@ -11,9 +11,7 @@ class formatter {
 public:
     virtual ~formatter() = default;
 
-    virtual std::string format(const log_msg& msg) = 0;
-
-    virtual std::unique_ptr<formatter> clone() const = 0;
+    virtual std::string format(const log_msg& msg) const = 0;
 };
 
 }  // namespace mini_spdlog

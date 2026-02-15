@@ -2,6 +2,7 @@
 #define FILE_SINK_H
 
 #include <fstream>
+#include <mutex>
 
 #include "mini_spdlog/sink/sink.h"
 
@@ -15,6 +16,7 @@ public:
     void log(const std::string& formatted_msg) override;
 
 private:
+    std::mutex mutex_;
     std::ofstream file_;
 };
 

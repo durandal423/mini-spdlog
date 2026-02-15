@@ -1,2 +1,4 @@
 build/
-log.txt
+logs/
+full_project.txt
+get_project_text.ps1

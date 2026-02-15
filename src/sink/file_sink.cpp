@@ -3,6 +3,7 @@
 namespace mini_spdlog {
 
 void mini_spdlog::file_sink::log(const std::string& formatted_msg) {
+    std::lock_guard lock(mutex_);
     file_ << formatted_msg << std::endl;
 }
 

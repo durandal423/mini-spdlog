@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <mutex>
 
 #include "mini_spdlog/formatter/formatter.h"
 #include "mini_spdlog/formatter/simple_formatter.h"
@@ -18,18 +19,20 @@ namespace mini_spdlog {
 class logger {
 public:
     logger(std::string name, level min_level = level::info)
-        : name_(name)
+        : name_(std::move(name))
         , min_level_(min_level)
-        , formatter_(std::make_unique<simple_formatter>()) {}
+        , formatter_(std::make_shared<simple_formatter>())
+        , sinks_(std::make_shared<std::vector<std::shared_ptr<sink>>>()) {}
 
-    std::string& get_name();
+    const std::string& get_name() const;
 
     template <typename Sink, typename... Args>
     void add_sink(Args&&... args) {
         static_assert(std::is_base_of_v<sink, Sink>);
-        sinks_.push_back(
-            std::make_shared<Sink>(std::forward<Args>(args)...)
-        );
+        auto old_sinks = sinks_.load();
+        auto new_sinks = std::make_shared<std::vector<std::shared_ptr<sink>>>(*old_sinks);
+        new_sinks->push_back(std::make_shared<Sink>(std::forward<Args>(args)...));
+        std::atomic_store(&sinks_, new_sinks);
     }
 
     void add_sink(std::shared_ptr<sink>);
@@ -41,7 +44,6 @@ public:
     void set_level(level lvl);
     void set_pattern(std::string pattern);
     void set_formatter(std::unique_ptr<formatter> fmt);
-    void set_formatter(const formatter& fmt);
     void reset_formatter();
 
     void trace(const std::string& msg) { log(level::trace, msg); }
@@ -89,9 +91,9 @@ public:
 
 private:
     std::string name_;
-    level min_level_;
-    std::vector<std::shared_ptr<sink>> sinks_;
-    std::unique_ptr<formatter> formatter_;
+    std::atomic<level> min_level_;
+    std::atomic<std::shared_ptr<const formatter>> formatter_;
+    std::atomic<std::shared_ptr<std::vector<std::shared_ptr<sink>>>> sinks_;
 };
 
 }  // namespace mini_spdlog

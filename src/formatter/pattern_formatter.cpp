@@ -2,7 +2,7 @@
 
 namespace mini_spdlog {
 
-std::string pattern_formatter::format(const log_msg& msg) {
+std::string pattern_formatter::format(const log_msg& msg) const  {
     std::string result;
     result.reserve(128);
 
@@ -58,10 +58,6 @@ void mini_spdlog::pattern_formatter::compile_pattern(std::string pattern) {
     if (!literal.empty()) {
         items_.push_back(std::make_unique<literal_item>(literal));
     }
-}
-
-std::unique_ptr<formatter> pattern_formatter::clone() const {
-    return std::make_unique<pattern_formatter>(*this);
 }
 
 }  // namespace mini_spdlog

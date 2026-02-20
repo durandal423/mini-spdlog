@@ -1,13 +1,14 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#include <format>
+#include <fmt/format.h>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
 #include <mutex>
 #include <atomic>
+#include <algorithm>
 
 #include "mini_spdlog/formatter/formatter.h"
 #include "mini_spdlog/formatter/simple_formatter.h"
@@ -52,38 +53,38 @@ public:
     void off(const std::string& msg) { log(level::off, msg); }
 
     template <typename... Args>
-    void trace(std::format_string<Args...> fmt, Args&&... args) {
-        log(level::trace, std::format(fmt, std::forward<Args>(args)...));
+    void trace(fmt::format_string<Args...> fmt, Args&&... args) {
+        log(level::trace, fmt::format(fmt, std::forward<Args>(args)...));
     }
 
     template <typename... Args>
-    void debug(std::format_string<Args...> fmt, Args&&... args) {
-        log(level::debug, std::format(fmt, std::forward<Args>(args)...));
+    void debug(fmt::format_string<Args...> fmt, Args&&... args) {
+        log(level::debug, fmt::format(fmt, std::forward<Args>(args)...));
     }
 
     template <typename... Args>
-    void info(std::format_string<Args...> fmt, Args&&... args) {
-        log(level::info, std::format(fmt, std::forward<Args>(args)...));
+    void info(fmt::format_string<Args...> fmt, Args&&... args) {
+        log(level::info, fmt::format(fmt, std::forward<Args>(args)...));
     }
 
     template <typename... Args>
-    void warn(std::format_string<Args...> fmt, Args&&... args) {
-        log(level::warn, std::format(fmt, std::forward<Args>(args)...));
+    void warn(fmt::format_string<Args...> fmt, Args&&... args) {
+        log(level::warn, fmt::format(fmt, std::forward<Args>(args)...));
     }
 
     template <typename... Args>
-    void error(std::format_string<Args...> fmt, Args&&... args) {
-        log(level::error, std::format(fmt, std::forward<Args>(args)...));
+    void error(fmt::format_string<Args...> fmt, Args&&... args) {
+        log(level::error, fmt::format(fmt, std::forward<Args>(args)...));
     }
 
     template <typename... Args>
-    void critical(std::format_string<Args...> fmt, Args&&... args) {
-        log(level::critical, std::format(fmt, std::forward<Args>(args)...));
+    void critical(fmt::format_string<Args...> fmt, Args&&... args) {
+        log(level::critical, fmt::format(fmt, std::forward<Args>(args)...));
     }
 
     template <typename... Args>
-    void off(std::format_string<Args...> fmt, Args&&... args) {
-        log(level::off, std::format(fmt, std::forward<Args>(args)...));
+    void off(fmt::format_string<Args...> fmt, Args&&... args) {
+        log(level::off, fmt::format(fmt, std::forward<Args>(args)...));
     }
 
 private:

@@ -1,6 +1,8 @@
 #ifndef SIMPLE_FORMATTER_H
 #define SIMPLE_FORMATTER_H
 
+#include <fmt/format.h>
+#include <fmt/chrono.h>
 #include <iomanip>
 #include <sstream>
 

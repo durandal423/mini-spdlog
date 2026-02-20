@@ -3,7 +3,7 @@
 namespace mini_spdlog {
 
 std::string mini_spdlog::simple_formatter::format(const log_msg& msg) const {
-    return std::format(
+    return fmt::format(
         "[{:%Y-%m-%d %H:%M:%S}] {} {}",
         msg.time,
         level_to_string(msg.lvl),

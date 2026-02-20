@@ -40,7 +40,7 @@ void mini_spdlog::pattern_formatter::compile_pattern(std::string pattern) {
                 case 'H':
                 case 'M':
                 case 'S': {
-                    std::string fmt = std::format("{{:%{}}}", flag);
+                    std::string fmt = fmt::format("{{:%{}}}", flag);
                     items_.push_back(std::make_unique<time_item>(fmt));
                     break;
                 }

@@ -1,7 +1,8 @@
 #ifndef PATTERN_FORMATTER_H
 #define PATTERN_FORMATTER_H
 
-#include <format>
+#include <fmt/format.h>
+#include <fmt/chrono.h>
 #include <memory>
 #include <vector>
 
@@ -49,7 +50,7 @@ public:
         : fmt_(std::move(fmt)) {}
 
     void append(const log_msg& msg, std::string& out) const override {
-        out += std::vformat(fmt_, std::make_format_args(msg.time));
+        out += fmt::vformat(fmt_, fmt::make_format_args(msg.time));
     }
 private:
     std::string fmt_;

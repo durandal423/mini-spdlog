@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 project(mini_spdlog)
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 20)
+
+find_package(fmt CONFIG REQUIRED)
 
 add_library(mini_spdlog
     src/level.cpp
@@ -13,6 +15,8 @@ add_library(mini_spdlog
     src/formatter/pattern_formatter.cpp
     src/formatter/simple_formatter.cpp
 )
+
+target_link_libraries(mini_spdlog PUBLIC fmt::fmt)
 
 target_include_directories(mini_spdlog PUBLIC include)
 

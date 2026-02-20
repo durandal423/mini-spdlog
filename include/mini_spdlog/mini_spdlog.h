@@ -55,37 +55,37 @@ inline void off(const std::string& msg) {
 }
 
 template<typename... Args>
-inline void trace(std::format_string<Args...> fmt, Args&&... args) {
+inline void trace(fmt::format_string<Args...> fmt, Args&&... args) {
     default_logger()->trace(fmt, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
-inline void debug(std::format_string<Args...> fmt, Args&&... args) {
+inline void debug(fmt::format_string<Args...> fmt, Args&&... args) {
     default_logger()->debug(fmt, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
-inline void info(std::format_string<Args...> fmt, Args&&... args) {
+inline void info(fmt::format_string<Args...> fmt, Args&&... args) {
     default_logger()->info(fmt, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
-inline void warn(std::format_string<Args...> fmt, Args&&... args) {
+inline void warn(fmt::format_string<Args...> fmt, Args&&... args) {
     default_logger()->warn(fmt, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
-inline void error(std::format_string<Args...> fmt, Args&&... args) {
+inline void error(fmt::format_string<Args...> fmt, Args&&... args) {
     default_logger()->error(fmt, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
-inline void critical(std::format_string<Args...> fmt, Args&&... args) {
+inline void critical(fmt::format_string<Args...> fmt, Args&&... args) {
     default_logger()->critical(fmt, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
-inline void off(std::format_string<Args...> fmt, Args&&... args) {
+inline void off(fmt::format_string<Args...> fmt, Args&&... args) {
     default_logger()->off(fmt, std::forward<Args>(args)...);
 }
 

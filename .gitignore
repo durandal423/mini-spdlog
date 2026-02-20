@@ -1,5 +1,4 @@
 build/
 logs/
-.devcontainer/
 full_project.txt
 get_project_text.ps1

@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <mutex>
+#include <atomic>
 
 #include "mini_spdlog/formatter/formatter.h"
 #include "mini_spdlog/formatter/simple_formatter.h"

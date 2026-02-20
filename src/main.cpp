@@ -11,7 +11,7 @@ int main() {
     try {
         // 1. 初始化控制台和文件 Sink
         auto console = std::make_shared<stdout_sink>();
-        auto file    = std::make_shared<file_sink>("../../logs/stress_test.txt");
+        auto file    = std::make_shared<file_sink>("stress_test.txt");
 
         // 2. 注册一个新的 Logger
         auto multi_logger = std::make_shared<logger>("multi_worker");
@@ -47,7 +47,7 @@ int main() {
             for (int i = 0; i < 5; ++i) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(20));
                 // 测试动态增加 Sink 是否会导致正在 log 的线程崩溃
-                auto extra = std::make_shared<file_sink>("../../logs/log.txt");
+                auto extra = std::make_shared<file_sink>("log.txt");
                 mini_spdlog::get("multi_worker")->add_sink(extra);
                 mini_spdlog::warn("Dynamic config: Added a new stdout_sink");
             }

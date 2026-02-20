@@ -1,0 +1,25 @@
+{
+    "name": "Mini-Spdlog Dev Environment",
+    "image": "mcr.microsoft.com/devcontainers/cpp:1-debian-12",
+    "features": {
+        // "ghcr.io/devcontainers/features/rust:1": {
+        //     "version": "latest",
+        //     "profile": "minimal"
+        // },
+        // "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+    },
+    "updateContentCommand": "sudo apt-get update && sudo apt-get install -y libfmt-dev",
+    "postCreateCommand": "sh -c 'git config --global user.email j570613@qq.com && git config --global user.name durandal423 && git config --global http.proxy $http_proxy && git config --global https.proxy $http_proxy'",
+    "remoteUser": "vscode",
+    "mounts": [
+        "source=mini-spdlog-cache,target=/workspaces/build,type=volume"
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptools-extension-pack",
+                "twxs.cmake"
+            ]
+        }
+    }
+}

@@ -1,25 +1,39 @@
 {
-    "name": "Mini-Spdlog Dev Environment",
-    "image": "mcr.microsoft.com/devcontainers/cpp:1-debian-12",
-    "features": {
-        // "ghcr.io/devcontainers/features/rust:1": {
-        //     "version": "latest",
-        //     "profile": "minimal"
-        // },
-        // "ghcr.io/devcontainers/features/docker-in-docker:2": {}
-    },
-    "updateContentCommand": "sudo apt-get update && sudo apt-get install -y libfmt-dev",
-    "postCreateCommand": "sh -c 'git config --global user.email j570613@qq.com && git config --global user.name durandal423 && git config --global http.proxy $http_proxy && git config --global https.proxy $http_proxy'",
-    "remoteUser": "vscode",
-    "mounts": [
-        "source=mini-spdlog-cache,target=/workspaces/build,type=volume"
-    ],
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                "ms-vscode.cpptools-extension-pack",
-                "twxs.cmake"
-            ]
-        }
+  "name": "cpp-project",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "HTTP_PROXY": "${localEnv:HTTP_PROXY}",
+      "HTTPS_PROXY": "${localEnv:HTTPS_PROXY}",
+      "NO_PROXY": "${localEnv:NO_PROXY}"
     }
+  },
+
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+
+  "mounts": [
+    "source=cpp-vcpkg-downloads,target=/usr/local/vcpkg-downloads,type=volume",
+    "source=cpp-vcpkg-bincache,target=/var/cache/vcpkg,type=volume",
+    "source=cpp-sccache,target=/var/cache/sccache,type=volume"
+  ],
+
+  "containerEnv": {
+    "VCPKG_DOWNLOADS": "/usr/local/vcpkg-downloads",
+    "VCPKG_DEFAULT_BINARY_CACHE": "/var/cache/vcpkg",
+    "SCCACHE_DIR": "/var/cache/sccache"
+  },
+
+  "postCreateCommand": "bash /workspace/.devcontainer/post-create.sh",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cmake-tools",
+        "llvm-vs-code-extensions.vscode-clangd"
+      ]
+    }
+  },
+
+  "remoteUser": "vscode"
 }

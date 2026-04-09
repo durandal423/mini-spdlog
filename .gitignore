@@ -1,4 +1,6 @@
 build/
 logs/
+.cache/
+vcpkg_installed
 full_project.txt
 get_project_text.ps1

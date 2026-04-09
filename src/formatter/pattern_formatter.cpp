@@ -30,6 +30,34 @@ void mini_spdlog::pattern_formatter::compile_pattern(std::string pattern) {
                     items_.push_back(std::make_unique<message_item>());
                     break;
 
+                case 'n':
+                    items_.push_back(std::make_unique<logger_name_item>());
+                    break;
+
+                case 't':
+                    items_.push_back(std::make_unique<thread_id_item>());
+                    break;
+
+                case 's':
+                    items_.push_back(std::make_unique<source_file_item>());
+                    break;
+
+                case '#':
+                    items_.push_back(std::make_unique<source_line_item>());
+                    break;
+
+                case '!':
+                    items_.push_back(std::make_unique<source_func_item>());
+                    break;
+
+                case 'e':
+                    items_.push_back(std::make_unique<millis_item>());
+                    break;
+
+                case 'f':
+                    items_.push_back(std::make_unique<micros_item>());
+                    break;
+
                 case 'l':
                     items_.push_back(std::make_unique<level_item>());
                     break;

@@ -1,34 +1,29 @@
 #ifndef ASYNC_SINK_H
 #define ASYNC_SINK_H
 
-#include <atomic>
-#include <condition_variable>
-#include <mutex>
-#include <queue>
-#include <thread>
-#include <vector>
+#include <memory>
 
+#include "mini_spdlog/sink/async_thread_pool.h"
 #include "mini_spdlog/sink/sink.h"
 
 namespace mini_spdlog {
 
 class async_sink : public sink {
 public:
-    explicit async_sink(std::shared_ptr<sink> target_sink);
+    explicit async_sink(
+        std::shared_ptr<sink> target_sink,
+        std::shared_ptr<async_thread_pool> thread_pool = async_thread_pool::default_instance(),
+        async_overflow_policy overflow_policy = async_overflow_policy::block);
 
-    ~async_sink() override;
+    ~async_sink() override = default;
 
     void log(const std::string& formatted_msg) override;
+    void flush() override;
 
 private:
-    void worker_loop();
-
     std::shared_ptr<sink> target_sink_;
-    std::queue<std::string> msg_queue_;
-    std::mutex queue_mutex_;
-    std::condition_variable cv_;
-    std::atomic<bool> should_exit_;
-    std::jthread worker_thread_;
+    std::shared_ptr<async_thread_pool> thread_pool_;
+    async_overflow_policy overflow_policy_;
 };
 
 }  // namespace mini_spdlog

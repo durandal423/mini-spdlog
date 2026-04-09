@@ -13,6 +13,7 @@ public:
     explicit file_sink(const std::string& filename);
 
     void log(const std::string& formatted_msg) override;
+    void flush() override;
 
 private:
     std::mutex mutex_;

@@ -10,6 +10,7 @@ public:
     virtual ~sink() = default;
 
     virtual void log(const std::string& formatted_msg) = 0;
+    virtual void flush() {}
 };
 
 }  // namespace mini_spdlog

@@ -4,16 +4,19 @@
 #include <fmt/format.h>
 #include <iostream>
 #include <memory>
+#include <cstddef>
 #include <string>
 #include <vector>
 #include <mutex>
 #include <atomic>
 #include <algorithm>
+#include <deque>
 
 #include "mini_spdlog/formatter/formatter.h"
 #include "mini_spdlog/formatter/simple_formatter.h"
 #include "mini_spdlog/formatter/pattern_formatter.h"
 #include "mini_spdlog/level.h"
+#include "mini_spdlog/source_loc.h"
 #include "mini_spdlog/sink/sink.h"
 
 namespace mini_spdlog {
@@ -38,11 +41,17 @@ public:
     void clear_sinks();
 
     void log(level lvl, const std::string& msg);
+    void log(level lvl, const std::string& msg, source_loc loc);
 
     void set_level(level lvl);
     void set_pattern(std::string pattern);
     void set_formatter(std::unique_ptr<formatter> fmt);
     void reset_formatter();
+    void flush();
+
+    void enable_backtrace(std::size_t n_messages);
+    void disable_backtrace();
+    void dump_backtrace(level lvl = level::info);
 
     void trace(const std::string& msg) { log(level::trace, msg); }
     void debug(const std::string& msg) { log(level::debug, msg); }
@@ -58,8 +67,18 @@ public:
     }
 
     template <typename... Args>
+    void trace(source_loc loc, fmt::format_string<Args...> fmt, Args&&... args) {
+        log(level::trace, fmt::format(fmt, std::forward<Args>(args)...), loc);
+    }
+
+    template <typename... Args>
     void debug(fmt::format_string<Args...> fmt, Args&&... args) {
         log(level::debug, fmt::format(fmt, std::forward<Args>(args)...));
+    }
+
+    template <typename... Args>
+    void debug(source_loc loc, fmt::format_string<Args...> fmt, Args&&... args) {
+        log(level::debug, fmt::format(fmt, std::forward<Args>(args)...), loc);
     }
 
     template <typename... Args>
@@ -68,8 +87,18 @@ public:
     }
 
     template <typename... Args>
+    void info(source_loc loc, fmt::format_string<Args...> fmt, Args&&... args) {
+        log(level::info, fmt::format(fmt, std::forward<Args>(args)...), loc);
+    }
+
+    template <typename... Args>
     void warn(fmt::format_string<Args...> fmt, Args&&... args) {
         log(level::warn, fmt::format(fmt, std::forward<Args>(args)...));
+    }
+
+    template <typename... Args>
+    void warn(source_loc loc, fmt::format_string<Args...> fmt, Args&&... args) {
+        log(level::warn, fmt::format(fmt, std::forward<Args>(args)...), loc);
     }
 
     template <typename... Args>
@@ -78,8 +107,18 @@ public:
     }
 
     template <typename... Args>
+    void error(source_loc loc, fmt::format_string<Args...> fmt, Args&&... args) {
+        log(level::error, fmt::format(fmt, std::forward<Args>(args)...), loc);
+    }
+
+    template <typename... Args>
     void critical(fmt::format_string<Args...> fmt, Args&&... args) {
         log(level::critical, fmt::format(fmt, std::forward<Args>(args)...));
+    }
+
+    template <typename... Args>
+    void critical(source_loc loc, fmt::format_string<Args...> fmt, Args&&... args) {
+        log(level::critical, fmt::format(fmt, std::forward<Args>(args)...), loc);
     }
 
     template <typename... Args>
@@ -87,11 +126,24 @@ public:
         log(level::off, fmt::format(fmt, std::forward<Args>(args)...));
     }
 
+    template <typename... Args>
+    void off(source_loc loc, fmt::format_string<Args...> fmt, Args&&... args) {
+        log(level::off, fmt::format(fmt, std::forward<Args>(args)...), loc);
+    }
+
 private:
     std::string name_;
     std::atomic<level> min_level_;
     std::atomic<std::shared_ptr<const formatter>> formatter_;
     std::atomic<std::shared_ptr<std::vector<std::shared_ptr<sink>>>> sinks_;
+
+    mutable std::mutex backtrace_mutex_;
+    std::deque<std::string> backtrace_buffer_;
+    std::size_t backtrace_capacity_;
+    bool backtrace_enabled_;
+
+    void push_backtrace(std::string formatted_msg);
+    void log_to_sinks(const std::string& formatted_msg);
 };
 
 }  // namespace mini_spdlog

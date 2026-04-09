@@ -4,6 +4,7 @@
 #include <fmt/format.h>
 #include <fmt/chrono.h>
 #include <memory>
+#include <sstream>
 #include <vector>
 
 #include "mini_spdlog/log_msg.h"
@@ -41,6 +42,59 @@ class message_item : public format_item {
 public:
     void append(const log_msg& msg, std::string& out) const override {
         out += msg.payload;
+    }
+};
+
+class logger_name_item : public format_item {
+public:
+    void append(const log_msg& msg, std::string& out) const override {
+        out += msg.logger_name;
+    }
+};
+
+class thread_id_item : public format_item {
+public:
+    void append(const log_msg& msg, std::string& out) const override {
+        std::ostringstream oss;
+        oss << msg.thread_id;
+        out += oss.str();
+    }
+};
+
+class source_file_item : public format_item {
+public:
+    void append(const log_msg& msg, std::string& out) const override {
+        out += msg.loc.empty() ? "?" : msg.loc.filename;
+    }
+};
+
+class source_line_item : public format_item {
+public:
+    void append(const log_msg& msg, std::string& out) const override {
+        out += msg.loc.empty() ? "0" : std::to_string(msg.loc.line);
+    }
+};
+
+class source_func_item : public format_item {
+public:
+    void append(const log_msg& msg, std::string& out) const override {
+        out += msg.loc.empty() ? "?" : msg.loc.funcname;
+    }
+};
+
+class millis_item : public format_item {
+public:
+    void append(const log_msg& msg, std::string& out) const override {
+        const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(msg.time.time_since_epoch()) % 1000;
+        out += fmt::format("{:03}", ms.count());
+    }
+};
+
+class micros_item : public format_item {
+public:
+    void append(const log_msg& msg, std::string& out) const override {
+        const auto us = std::chrono::duration_cast<std::chrono::microseconds>(msg.time.time_since_epoch()) % 1000000;
+        out += fmt::format("{:06}", us.count());
     }
 };
 

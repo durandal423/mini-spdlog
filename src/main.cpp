@@ -12,11 +12,17 @@ int main() {
         // 1. 初始化控制台和文件 Sink
         auto console = std::make_shared<stdout_sink>();
         auto file    = std::make_shared<file_sink>("stress_test.txt");
+        auto rotating = std::make_shared<rotating_file_sink>("rotating_stress.log", 1024 * 50, 3);
+        auto daily = std::make_shared<daily_file_sink>("daily_stress", 0, 0);
 
         // 2. 注册一个新的 Logger
         auto multi_logger = std::make_shared<logger>("multi_worker");
         multi_logger->add_sink(console);
         multi_logger->add_sink(file);
+        multi_logger->add_sink(rotating);
+        multi_logger->add_sink(daily);
+        multi_logger->enable_backtrace(20);
+        multi_logger->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] [%n] [tid:%t] [%s:%# %!] %v");
         mini_spdlog::register_logger(multi_logger);
 
         // 3. 准备并发测试
@@ -30,11 +36,16 @@ int main() {
             workers.emplace_back([i, multi_logger]() {
                 for (int j = 0; j < logs_per_thread; ++j) {
                     // 测试不同级别和格式化内容
-                    multi_logger->info("Thread {} is logging message #{}", i, j);
+                    source_loc loc {"src/main.cpp", __LINE__, __func__};
+                    multi_logger->info(loc, "Thread {} is logging message #{}", i, j);
 
                     if (j == 50) {
                         // 模拟在运行期间设置格式（测试 RCU 线程安全性）
                         multi_logger->set_pattern("[%H:%M:%S] [Thread-Specific] %v");
+                    }
+
+                    if (j == 99 && i == 0) {
+                        multi_logger->dump_backtrace(level::warn);
                     }
 
                     std::this_thread::sleep_for(std::chrono::microseconds(10));
@@ -64,7 +75,8 @@ int main() {
         auto real_file_sink = std::make_shared<file_sink>("../../logs/async_log.txt");
 
         // 用异步外壳包裹它
-        auto async_wrapper = std::make_shared<async_sink>(real_file_sink);
+        auto shared_pool = std::make_shared<async_thread_pool>(4096, 2);
+        auto async_wrapper = std::make_shared<async_sink>(real_file_sink, shared_pool, async_overflow_policy::overrun_oldest);
 
         // 将异步外壳交给 Logger
         auto logger = std::make_shared<mini_spdlog::logger>("async_logger");
@@ -74,6 +86,7 @@ int main() {
         for (int i = 0; i < 1000; ++i) {
             logger->info("This is an async message #{}", i);
         }
+        logger->flush();
 
         std::cout << "Test completed successfully. Check stress_test.txt for logs.\n";
 

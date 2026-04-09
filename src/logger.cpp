@@ -23,6 +23,10 @@ const std::string& logger::get_name() const {
 }
 
 void logger::add_sink(std::shared_ptr<sink> new_sink) {
+    if (!new_sink) {
+        return;
+    }
+
     auto old_sinks = sinks_.load();
 
     if (std::find(old_sinks->begin(), old_sinks->end(), new_sink) != old_sinks->end()) {
@@ -40,7 +44,7 @@ void logger::clear_sinks() {
 }
 
 void logger::log(level lvl, const std::string& msg) {
-    if (!is_level_enabled(lvl, min_level_)) {
+    if (!is_level_enabled(lvl, min_level_.load(std::memory_order_relaxed))) {
         return;
     }
 
@@ -69,7 +73,13 @@ void logger::set_pattern(std::string pattern) {
 }
 
 void logger::set_formatter(std::unique_ptr<formatter> fmt) {
-    std::atomic_store(&formatter_, std::move(fmt));
+    if (!fmt) {
+        return;
+    }
+
+    std::atomic_store(
+        &formatter_,
+        std::shared_ptr<const formatter>(std::move(fmt)));
 }
 
 void logger::reset_formatter() {

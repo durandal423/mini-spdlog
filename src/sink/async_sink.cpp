@@ -1,10 +1,16 @@
 #include "mini_spdlog/sink/async_sink.h"
 
+#include <stdexcept>
+
 namespace mini_spdlog {
 
 mini_spdlog::async_sink::async_sink(std::shared_ptr<sink> target_sink)
     : target_sink_(std::move(target_sink))
     , should_exit_(false) {
+    if (!target_sink_) {
+        throw std::invalid_argument("async_sink requires a non-null target sink");
+    }
+
     // 启动后台线程
     worker_thread_ = std::jthread([this] { this->worker_loop(); });
 }

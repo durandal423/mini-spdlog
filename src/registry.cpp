@@ -1,5 +1,7 @@
 #include "mini_spdlog/registry.h"
 
+#include <stdexcept>
+
 namespace mini_spdlog {
 
 registry::registry()  {

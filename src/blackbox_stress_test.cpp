@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <iostream>
 #include <mutex>
+#include <stdexcept>
 #include <regex>
 #include <sstream>
 #include <string>
@@ -54,6 +55,13 @@ public:
 private:
     std::chrono::milliseconds delay_;
     std::atomic<int> count_;
+};
+
+class prefix_formatter final : public mini_spdlog::formatter {
+public:
+    std::string format(const mini_spdlog::log_msg& msg) const override {
+        return std::string("CUSTOM:") + msg.payload;
+    }
 };
 
 bool check(bool condition, const std::string& msg, int& failures) {
@@ -137,6 +145,75 @@ bool test_backtrace_dump(int& failures) {
     return true;
 }
 
+bool test_level_filter_and_backtrace_gate(int& failures) {
+    auto sink = std::make_shared<memory_sink>();
+    mini_spdlog::logger log("blackbox-level-gate");
+    log.add_sink(sink);
+    log.set_pattern("%v");
+    log.set_level(mini_spdlog::level::warn);
+    log.enable_backtrace(2);
+
+    log.info("filtered-info");
+    log.warn("visible-warn");
+    log.error("visible-error");
+
+    log.dump_backtrace(mini_spdlog::level::info);
+    log.dump_backtrace(mini_spdlog::level::error);
+
+    const auto msgs = sink->snapshot();
+    bool has_filtered_info = false;
+    bool has_visible_warn = false;
+    bool has_visible_error = false;
+    int start_marker_count = 0;
+
+    for (const auto& m : msgs) {
+        has_filtered_info = has_filtered_info || m == "filtered-info";
+        has_visible_warn = has_visible_warn || m == "visible-warn";
+        has_visible_error = has_visible_error || m == "visible-error";
+        if (m.find("Backtrace Start") != std::string::npos) {
+            ++start_marker_count;
+        }
+    }
+
+    check(!has_filtered_info, "set_level filters lower-level messages", failures);
+    check(has_visible_warn && has_visible_error, "set_level keeps warn/error messages", failures);
+    check(start_marker_count == 1, "dump_backtrace obeys dump level gate", failures);
+    return true;
+}
+
+bool test_null_inputs_and_formatter_reset(int& failures) {
+    auto sink = std::make_shared<memory_sink>();
+    mini_spdlog::logger log("blackbox-null-inputs");
+    log.add_sink(nullptr);
+    log.add_sink(sink);
+    log.set_pattern("%v");
+
+    log.set_formatter(nullptr);
+    log.info("default-formatter-still-works");
+
+    log.set_formatter(std::make_unique<prefix_formatter>());
+    log.info("custom-format");
+
+    log.clear_sinks();
+    log.info("dropped-by-clear-sinks");
+
+    const auto msgs = sink->snapshot();
+    bool has_default_msg = false;
+    bool has_custom_msg = false;
+    bool has_after_clear = false;
+
+    for (const auto& m : msgs) {
+        has_default_msg = has_default_msg || m == "default-formatter-still-works";
+        has_custom_msg = has_custom_msg || m == "CUSTOM:custom-format";
+        has_after_clear = has_after_clear || m == "dropped-by-clear-sinks";
+    }
+
+    check(has_default_msg, "set_formatter(nullptr) keeps previous formatter", failures);
+    check(has_custom_msg, "set_formatter(unique_ptr) swaps formatter", failures);
+    check(!has_after_clear, "clear_sinks stops further delivery", failures);
+    return true;
+}
+
 bool test_rotating_sink(const std::filesystem::path& dir, int& failures) {
     std::filesystem::create_directories(dir);
     const auto base = (dir / "rotating.log").string();
@@ -157,6 +234,7 @@ bool test_rotating_sink(const std::filesystem::path& dir, int& failures) {
 
     check(std::filesystem::exists(base), "rotating sink keeps active file", failures);
     check(std::filesystem::exists(base + ".1"), "rotating sink creates rolled file", failures);
+    check(std::filesystem::exists(base + ".2"), "rotating sink respects max backup depth", failures);
     return true;
 }
 
@@ -178,6 +256,15 @@ bool test_daily_sink(const std::filesystem::path& dir, int& failures) {
     std::string content;
     std::getline(in, content);
     check(content.find("daily-message") != std::string::npos, "daily sink writes message", failures);
+
+    bool threw = false;
+    try {
+        auto invalid_sink = std::make_shared<mini_spdlog::daily_file_sink>(base + "_invalid", 24, 0);
+        (void)invalid_sink;
+    } catch (const std::invalid_argument&) {
+        threw = true;
+    }
+    check(threw, "daily sink rejects invalid rotation hour", failures);
     return true;
 }
 
@@ -219,6 +306,27 @@ bool test_async_pool_policies(int& failures) {
     return true;
 }
 
+bool test_async_shutdown_drain(int& failures) {
+    auto sink = std::make_shared<counting_sink>();
+
+    {
+        auto pool = std::make_shared<mini_spdlog::async_thread_pool>(256, 2);
+        auto async = std::make_shared<mini_spdlog::async_sink>(sink, pool, mini_spdlog::async_overflow_policy::block);
+
+        mini_spdlog::logger log("blackbox-async-shutdown");
+        log.add_sink(async);
+
+        for (int i = 0; i < 120; ++i) {
+            log.info("shutdown-msg-{}", i);
+        }
+        // 不手动 flush，验证线程池析构时会处理完队列
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    check(sink->count() == 120, "async thread pool drains queued logs on shutdown", failures);
+    return true;
+}
+
 }  // namespace
 
 int main() {
@@ -227,9 +335,12 @@ int main() {
 
     test_pattern_and_source_loc(failures);
     test_backtrace_dump(failures);
+    test_level_filter_and_backtrace_gate(failures);
+    test_null_inputs_and_formatter_reset(failures);
     test_rotating_sink(out_dir, failures);
     test_daily_sink(out_dir, failures);
     test_async_pool_policies(failures);
+    test_async_shutdown_drain(failures);
 
     if (failures > 0) {
         std::cerr << "\nBlackbox stress test finished with " << failures << " failure(s).\n";

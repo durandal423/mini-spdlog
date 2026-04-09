@@ -5,6 +5,9 @@ set(CMAKE_CXX_STANDARD 20)
 
 find_package(fmt CONFIG REQUIRED)
 
+include(CTest)
+enable_testing()
+
 add_library(mini_spdlog
     src/level.cpp
     src/logger.cpp
@@ -25,3 +28,8 @@ target_include_directories(mini_spdlog PUBLIC include)
 
 add_executable(example src/main.cpp)
 target_link_libraries(example PRIVATE mini_spdlog)
+
+add_executable(blackbox_stress_test src/blackbox_stress_test.cpp)
+target_link_libraries(blackbox_stress_test PRIVATE mini_spdlog)
+
+add_test(NAME mini_spdlog_blackbox COMMAND blackbox_stress_test)

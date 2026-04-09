@@ -10,4 +10,9 @@ void mini_spdlog::file_sink::log(const std::string& formatted_msg) {
     file_ << formatted_msg << std::endl;
 }
 
+void file_sink::flush() {
+    std::lock_guard lock(mutex_);
+    file_.flush();
+}
+
 }  // namespace mini_spdlog

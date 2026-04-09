@@ -17,6 +17,7 @@ int main() {
         auto multi_logger = std::make_shared<logger>("multi_worker");
         multi_logger->add_sink(console);
         multi_logger->add_sink(file);
+        multi_logger->enable_backtrace(20);
         mini_spdlog::register_logger(multi_logger);
 
         // 3. 准备并发测试
@@ -35,6 +36,10 @@ int main() {
                     if (j == 50) {
                         // 模拟在运行期间设置格式（测试 RCU 线程安全性）
                         multi_logger->set_pattern("[%H:%M:%S] [Thread-Specific] %v");
+                    }
+
+                    if (j == 99 && i == 0) {
+                        multi_logger->dump_backtrace(level::warn);
                     }
 
                     std::this_thread::sleep_for(std::chrono::microseconds(10));
@@ -74,6 +79,7 @@ int main() {
         for (int i = 0; i < 1000; ++i) {
             logger->info("This is an async message #{}", i);
         }
+        logger->flush();
 
         std::cout << "Test completed successfully. Check stress_test.txt for logs.\n";
 

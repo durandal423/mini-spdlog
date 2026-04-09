@@ -4,11 +4,13 @@
 #include <fmt/format.h>
 #include <iostream>
 #include <memory>
+#include <cstddef>
 #include <string>
 #include <vector>
 #include <mutex>
 #include <atomic>
 #include <algorithm>
+#include <deque>
 
 #include "mini_spdlog/formatter/formatter.h"
 #include "mini_spdlog/formatter/simple_formatter.h"
@@ -43,6 +45,11 @@ public:
     void set_pattern(std::string pattern);
     void set_formatter(std::unique_ptr<formatter> fmt);
     void reset_formatter();
+    void flush();
+
+    void enable_backtrace(std::size_t n_messages);
+    void disable_backtrace();
+    void dump_backtrace(level lvl = level::info);
 
     void trace(const std::string& msg) { log(level::trace, msg); }
     void debug(const std::string& msg) { log(level::debug, msg); }
@@ -92,6 +99,14 @@ private:
     std::atomic<level> min_level_;
     std::atomic<std::shared_ptr<const formatter>> formatter_;
     std::atomic<std::shared_ptr<std::vector<std::shared_ptr<sink>>>> sinks_;
+
+    mutable std::mutex backtrace_mutex_;
+    std::deque<std::string> backtrace_buffer_;
+    std::size_t backtrace_capacity_;
+    bool backtrace_enabled_;
+
+    void push_backtrace(std::string formatted_msg);
+    void log_to_sinks(const std::string& formatted_msg);
 };
 
 }  // namespace mini_spdlog

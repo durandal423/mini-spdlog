@@ -1,6 +1,8 @@
 #ifndef MINI_SPDLOG_H
 #define MINI_SPDLOG_H
 
+#include <cstddef>
+
 #include "mini_spdlog/logger.h"
 #include "mini_spdlog/registry.h"
 #include "mini_spdlog/sink/file_sink.h"
@@ -24,6 +26,22 @@ inline void register_logger(std::shared_ptr<logger> log) {
 
 inline void set_pattern(std::string pattern) {
     default_logger()->set_pattern(std::move(pattern));
+}
+
+inline void flush() {
+    default_logger()->flush();
+}
+
+inline void enable_backtrace(std::size_t n_messages) {
+    default_logger()->enable_backtrace(n_messages);
+}
+
+inline void disable_backtrace() {
+    default_logger()->disable_backtrace();
+}
+
+inline void dump_backtrace(level lvl = level::info) {
+    default_logger()->dump_backtrace(lvl);
 }
 
 inline void trace(const std::string& msg) {

@@ -11,6 +11,7 @@ namespace mini_spdlog {
 class stdout_sink : public sink {
 public:
     void log(const std::string& formatted_msg) override;
+    void flush() override;
     
 private:
     static std::mutex mutex_;

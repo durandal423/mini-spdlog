@@ -16,7 +16,9 @@ logger::logger(std::string name, level min_level)
     : name_(std::move(name))
     , min_level_(min_level)
     , formatter_(std::make_shared<simple_formatter>())
-    , sinks_(std::make_shared<std::vector<std::shared_ptr<sink>>>()) {}
+    , sinks_(std::make_shared<std::vector<std::shared_ptr<sink>>>())
+    , backtrace_capacity_(0)
+    , backtrace_enabled_(false) {}
 
 const std::string& logger::get_name() const {
     return name_;
@@ -58,9 +60,8 @@ void logger::log(level lvl, const std::string& msg) {
 
     std::string formatted = fmt->format(log);
 
-    for (auto& s : *sinks) {
-        s->log(formatted);
-    }
+    push_backtrace(formatted);
+    log_to_sinks(formatted);
 }
 
 void logger::set_level(level lvl) {
@@ -84,6 +85,70 @@ void logger::set_formatter(std::unique_ptr<formatter> fmt) {
 
 void logger::reset_formatter() {
     std::atomic_store(&formatter_, std::make_shared<simple_formatter>());
+}
+
+void logger::flush() {
+    auto sinks = sinks_.load(std::memory_order_acquire);
+    for (auto& s : *sinks) {
+        s->flush();
+    }
+}
+
+void logger::enable_backtrace(std::size_t n_messages) {
+    std::lock_guard lock(backtrace_mutex_);
+    backtrace_enabled_ = n_messages > 0;
+    backtrace_capacity_ = n_messages;
+    backtrace_buffer_.clear();
+}
+
+void logger::disable_backtrace() {
+    std::lock_guard lock(backtrace_mutex_);
+    backtrace_enabled_ = false;
+    backtrace_capacity_ = 0;
+    backtrace_buffer_.clear();
+}
+
+void logger::dump_backtrace(level lvl) {
+    if (!is_level_enabled(lvl, min_level_.load(std::memory_order_relaxed))) {
+        return;
+    }
+
+    std::vector<std::string> snapshot;
+
+    {
+        std::lock_guard lock(backtrace_mutex_);
+        snapshot.assign(backtrace_buffer_.begin(), backtrace_buffer_.end());
+    }
+
+    if (snapshot.empty()) {
+        return;
+    }
+
+    log_to_sinks("*************** Backtrace Start ***************");
+    for (const auto& line : snapshot) {
+        log_to_sinks(line);
+    }
+    log_to_sinks("**************** Backtrace End ****************");
+}
+
+void logger::push_backtrace(std::string formatted_msg) {
+    std::lock_guard lock(backtrace_mutex_);
+    if (!backtrace_enabled_ || backtrace_capacity_ == 0) {
+        return;
+    }
+
+    if (backtrace_buffer_.size() >= backtrace_capacity_) {
+        backtrace_buffer_.pop_front();
+    }
+
+    backtrace_buffer_.push_back(std::move(formatted_msg));
+}
+
+void logger::log_to_sinks(const std::string& formatted_msg) {
+    auto sinks = sinks_.load(std::memory_order_acquire);
+    for (auto& s : *sinks) {
+        s->log(formatted_msg);
+    }
 }
 
 }  // namespace mini_spdlog

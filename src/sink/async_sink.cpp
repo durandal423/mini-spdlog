@@ -33,6 +33,13 @@ void async_sink::log(const std::string& formatted_msg) {
     cv_.notify_one();
 }
 
+void async_sink::flush() {
+    std::unique_lock lock(queue_mutex_);
+    drained_cv_.wait(lock, [this] { return msg_queue_.empty(); });
+    lock.unlock();
+    target_sink_->flush();
+}
+
 void async_sink::worker_loop() {
     while (true) {
         std::vector<std::string> local_msgs;
@@ -51,6 +58,10 @@ void async_sink::worker_loop() {
             while (!msg_queue_.empty()) {
                 local_msgs.push_back(std::move(msg_queue_.front()));
                 msg_queue_.pop();
+            }
+
+            if (msg_queue_.empty()) {
+                drained_cv_.notify_all();
             }
         }
 

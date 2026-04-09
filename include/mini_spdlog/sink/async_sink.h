@@ -19,6 +19,7 @@ public:
     ~async_sink() override;
 
     void log(const std::string& formatted_msg) override;
+    void flush() override;
 
 private:
     void worker_loop();
@@ -27,6 +28,7 @@ private:
     std::queue<std::string> msg_queue_;
     std::mutex queue_mutex_;
     std::condition_variable cv_;
+    std::condition_variable drained_cv_;
     std::atomic<bool> should_exit_;
     std::jthread worker_thread_;
 };

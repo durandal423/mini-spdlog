@@ -12,6 +12,9 @@ add_library(mini_spdlog
     src/sink/file_sink.cpp
     src/sink/stdout_sink.cpp
     src/sink/async_sink.cpp
+    src/sink/async_thread_pool.cpp
+    src/sink/rotating_file_sink.cpp
+    src/sink/daily_file_sink.cpp
     src/formatter/pattern_formatter.cpp
     src/formatter/simple_formatter.cpp
 )

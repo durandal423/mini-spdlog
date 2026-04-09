@@ -5,6 +5,7 @@
 #include <ctime>
 #include <iomanip>
 #include <sstream>
+#include <thread>
 
 namespace mini_spdlog {
 
@@ -46,6 +47,10 @@ void logger::clear_sinks() {
 }
 
 void logger::log(level lvl, const std::string& msg) {
+    log(lvl, msg, {});
+}
+
+void logger::log(level lvl, const std::string& msg, source_loc loc) {
     if (!is_level_enabled(lvl, min_level_.load(std::memory_order_relaxed))) {
         return;
     }
@@ -53,11 +58,12 @@ void logger::log(level lvl, const std::string& msg) {
     log_msg log {
         lvl,
         msg,
-        std::chrono::system_clock::now()};
+        std::chrono::system_clock::now(),
+        name_,
+        std::this_thread::get_id(),
+        loc};
 
-    auto fmt   = formatter_.load(std::memory_order_acquire);
-    auto sinks = sinks_.load(std::memory_order_acquire);
-
+    auto fmt = formatter_.load(std::memory_order_acquire);
     std::string formatted = fmt->format(log);
 
     push_backtrace(formatted);

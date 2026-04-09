@@ -5,7 +5,9 @@
 
 #include "mini_spdlog/logger.h"
 #include "mini_spdlog/registry.h"
+#include "mini_spdlog/sink/daily_file_sink.h"
 #include "mini_spdlog/sink/file_sink.h"
+#include "mini_spdlog/sink/rotating_file_sink.h"
 #include "mini_spdlog/sink/sink.h"
 #include "mini_spdlog/sink/stdout_sink.h"
 #include "mini_spdlog/sink/async_sink.h"
